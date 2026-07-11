@@ -7,7 +7,7 @@ export const SIGN_UP_FORM = {
   FIRST_NAME_LABEL: 'First name',
   LAST_NAME_LABEL: 'Last name',
   EMAIL_LABEL: 'Email',
-  EMAIL_PLACEHOLDER: 'you@campus.edu',
+  EMAIL_PLACEHOLDER: 'email@example.com',
   PASSWORD_LABEL: 'Password',
   CONFIRM_PASSWORD_LABEL: 'Confirm password',
   SUBMIT: 'Create account',
