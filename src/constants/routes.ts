@@ -12,4 +12,6 @@ export const API_ROUTES = {
   ROOT: '/api',
   SIGN_IN: '/api/auth/sign-in',
   SIGN_UP: '/api/auth/sign-up',
+  SIGN_OUT: '/api/auth/sign-out',
+  CONSULTATIONS: '/api/consultations',
 } as const;
