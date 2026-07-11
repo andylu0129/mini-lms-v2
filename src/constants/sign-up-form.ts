@@ -1,0 +1,18 @@
+export const SIGN_UP_FORM = {
+  TITLE: 'Create your account',
+  SUBTITLE: 'Register to book consultations and manage them from your dashboard.',
+  FOOTER_PROMPT: 'Already have an account?',
+  FOOTER_LINK: 'Sign in',
+  ERROR_TITLE: 'Unable to sign up',
+  FIRST_NAME_LABEL: 'First name',
+  LAST_NAME_LABEL: 'Last name',
+  EMAIL_LABEL: 'Email',
+  EMAIL_PLACEHOLDER: 'you@campus.edu',
+  PASSWORD_LABEL: 'Password',
+  CONFIRM_PASSWORD_LABEL: 'Confirm password',
+  SUBMIT: 'Create account',
+  SUBMITTING: 'Creating account...',
+  GENERIC_ERROR: 'Something went wrong. Please try again.',
+  SUCCESS_TITLE: 'Check your email',
+  SUCCESS_DESCRIPTION: 'We sent you a confirmation link to finish creating your account.',
+} as const;

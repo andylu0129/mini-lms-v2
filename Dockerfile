@@ -15,6 +15,11 @@ RUN npm ci
 # Copy the rest of the files into the docker container.
 COPY . .
 
+# Reach the host's Supabase instance from inside the container; overrides the
+# localhost URL in .env.local (process env takes precedence in Next.js).
+ARG NEXT_PUBLIC_SUPABASE_URL=http://host.docker.internal:54321
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+
 # Build the app.
 RUN npm run build
 

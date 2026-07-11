@@ -1,4 +1,4 @@
-import { ROUTES } from '@/constants/routes';
+import { API_ROUTES, ROUTES } from '@/constants/routes';
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
@@ -40,12 +40,12 @@ export async function updateSession(request: NextRequest) {
   if (
     request.nextUrl.pathname !== '/' &&
     !user &&
-    !request.nextUrl.pathname.startsWith(ROUTES.SIGN_IN) &&
-    !request.nextUrl.pathname.startsWith(ROUTES.AUTH)
+    !request.nextUrl.pathname.startsWith(ROUTES.AUTH) &&
+    !request.nextUrl.pathname.startsWith(API_ROUTES.ROOT)
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
-    url.pathname = ROUTES.SIGN_IN;
+    url.pathname = `${ROUTES.AUTH}${ROUTES.SIGN_IN}`;
     return NextResponse.redirect(url);
   }
 
