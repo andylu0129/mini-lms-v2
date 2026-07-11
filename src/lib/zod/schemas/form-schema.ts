@@ -1,3 +1,4 @@
+import { CONSULTATION_STATUS } from '@/constants/consultation-status';
 import { ROLES } from '@/constants/roles';
 import { VALIDATION } from '@/constants/validation';
 import { z } from 'zod';
@@ -38,3 +39,43 @@ export const signInRequestSchema = signInFormSchema.extend({
 });
 
 export type SignInRequestValues = z.infer<typeof signInRequestSchema>;
+
+// What the booking form collects: date and time are separate inputs,
+// combined into an ISO datetime on submit.
+export const bookingFormSchema = z.object({
+  firstName: z.string().min(1, VALIDATION.FIRST_NAME_REQUIRED),
+  lastName: z.string().min(1, VALIDATION.LAST_NAME_REQUIRED),
+  reason: z.string().min(1, VALIDATION.REASON_REQUIRED),
+  date: z.date({ error: VALIDATION.DATE_REQUIRED }),
+  time: z.string().min(1, VALIDATION.TIME_REQUIRED),
+});
+
+export type BookingFormValues = z.infer<typeof bookingFormSchema>;
+
+// What the consultations API receives.
+export const consultationRequestSchema = z.object({
+  firstName: z.string().min(1, VALIDATION.FIRST_NAME_REQUIRED),
+  lastName: z.string().min(1, VALIDATION.LAST_NAME_REQUIRED),
+  reason: z.string().min(1, VALIDATION.REASON_REQUIRED),
+  datetime: z.iso.datetime({ offset: true, error: VALIDATION.DATETIME_INVALID }),
+});
+
+export type ConsultationRequestValues = z.infer<typeof consultationRequestSchema>;
+
+// Partial update: reschedule (datetime), cancel, or mark complete/incomplete (status).
+export const consultationUpdateSchema = z
+  .object({
+    datetime: z.iso.datetime({ offset: true, local: true, error: VALIDATION.DATETIME_INVALID }),
+    status: z.enum([
+      CONSULTATION_STATUS.UPCOMING,
+      CONSULTATION_STATUS.COMPLETE,
+      CONSULTATION_STATUS.INCOMPLETE,
+      CONSULTATION_STATUS.CANCELLED,
+    ]),
+  })
+  .partial()
+  .refine((data) => data.datetime !== undefined || data.status !== undefined, {
+    message: VALIDATION.NOTHING_TO_UPDATE,
+  });
+
+export type ConsultationUpdateValues = z.infer<typeof consultationUpdateSchema>;
