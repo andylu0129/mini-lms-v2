@@ -1,3 +1,4 @@
+import { ROLES } from '@/constants/roles';
 import { VALIDATION } from '@/constants/validation';
 import { z } from 'zod';
 
@@ -24,3 +25,16 @@ export const signUpFormSchema = z
   );
 
 export type SignUpFormValues = z.infer<typeof signUpFormSchema>;
+
+export const signInFormSchema = z.object({
+  email: z.email(),
+  password: z.string().min(1, VALIDATION.PASSWORD_REQUIRED),
+});
+
+export type SignInFormValues = z.infer<typeof signInFormSchema>;
+
+export const signInRequestSchema = signInFormSchema.extend({
+  portal: z.enum([ROLES.STUDENT, ROLES.ADMIN]),
+});
+
+export type SignInRequestValues = z.infer<typeof signInRequestSchema>;

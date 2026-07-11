@@ -1,5 +1,6 @@
 import { ERRORS } from '@/constants/errors';
 import { HTTP_STATUS } from '@/constants/http-status';
+import { ROUTES } from '@/constants/routes';
 import { VALIDATION } from '@/constants/validation';
 import { createClient } from '@/lib/supabase/server';
 import { signUpFormSchema } from '@/lib/zod/schemas/form-schema';
@@ -26,7 +27,10 @@ export async function POST(request: Request) {
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { first_name: firstName, last_name: lastName } },
+    options: {
+      data: { first_name: firstName, last_name: lastName },
+      emailRedirectTo: `${new URL(request.url).origin}${ROUTES.AUTH}${ROUTES.SIGN_IN}`,
+    },
   });
 
   // Prevent account enumeration: an already-registered email must be

@@ -1,10 +1,15 @@
 export const ROUTES = {
+  HOME: '/',
   AUTH: '/auth',
   SIGN_IN: '/sign-in',
   SIGN_UP: '/sign-up',
+  ADMIN_SIGNIN: '/admin/sign-in',
+  ADMIN_DASHBOARD: '/admin/dashboard',
+  STUDENT_DASHBOARD: '/student/dashboard',
 } as const;
 
 export const API_ROUTES = {
   ROOT: '/api',
+  SIGN_IN: '/api/auth/sign-in',
   SIGN_UP: '/api/auth/sign-up',
 } as const;
