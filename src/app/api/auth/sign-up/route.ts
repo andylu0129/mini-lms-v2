@@ -1,3 +1,4 @@
+import { ERRORS } from '@/constants/errors';
 import { HTTP_STATUS } from '@/constants/http-status';
 import { VALIDATION } from '@/constants/validation';
 import { createClient } from '@/lib/supabase/server';
@@ -22,15 +23,17 @@ export async function POST(request: Request) {
 
   const { email, password, firstName, lastName } = parsed.data;
   const supabase = await createClient();
-  const { data, error } = await supabase.auth.signUp({
+  const { error } = await supabase.auth.signUp({
     email,
     password,
     options: { data: { first_name: firstName, last_name: lastName } },
   });
 
-  if (error) {
+  // Prevent account enumeration: an already-registered email must be
+  // indistinguishable from a successful sign-up, and the user object is never returned.
+  if (error && error.code !== ERRORS.USER_ALREADY_EXISTS && error.code !== ERRORS.EMAIL_EXISTS) {
     return NextResponse.json({ error: error.message }, { status: error.status ?? HTTP_STATUS.BAD_REQUEST });
   }
 
-  return NextResponse.json({ user: data.user }, { status: HTTP_STATUS.CREATED });
+  return NextResponse.json({ success: true }, { status: HTTP_STATUS.CREATED });
 }
