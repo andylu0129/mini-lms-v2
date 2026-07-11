@@ -1,0 +1,27 @@
+export const SIGN_IN_FORM = {
+  EMAIL_PLACEHOLDER: 'email@example.com',
+  PASSWORD_LABEL: 'Password',
+  GENERIC_ERROR: 'Something went wrong. Please try again.',
+  STUDENT: {
+    TITLE: 'Student sign in',
+    SUBTITLE: 'Access your advising dashboard and manage consultations.',
+    ERROR_TITLE: 'Unable to sign in',
+    EMAIL_LABEL: 'Email',
+    SUBMIT: 'Sign in',
+    SUBMITTING: 'Signing in...',
+    FOOTER_PROMPT: 'New here?',
+    FOOTER_LINK: 'Create an account',
+    SWITCH_PROMPT: 'Staff member?',
+    SWITCH_LINK: 'Go to the admin portal',
+  },
+  ADMIN: {
+    TITLE: 'Admin portal',
+    SUBTITLE: 'Read-only access to all scheduled consultations.',
+    ERROR_TITLE: 'Access denied',
+    EMAIL_LABEL: 'Admin email',
+    SUBMIT: 'Enter admin portal',
+    SUBMITTING: 'Verifying...',
+    SWITCH_PROMPT: 'Not staff?',
+    SWITCH_LINK: 'Student sign in',
+  },
+} as const;

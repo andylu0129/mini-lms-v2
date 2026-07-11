@@ -8,5 +8,8 @@ export const VALIDATION = {
   PASSWORD_COMPLEXITY:
     'Password must include an uppercase letter, a lowercase letter, a number, and a special character.',
   PASSWORDS_DO_NOT_MATCH: 'Passwords do not match.',
+  PASSWORD_REQUIRED: 'Password is required.',
   INVALID_REQUEST: 'Invalid request.',
+  INVALID_CREDENTIALS: 'Invalid login credentials',
+  SIGN_IN_FAILED: 'Unable to sign in. Please try again later.',
 } as const;
