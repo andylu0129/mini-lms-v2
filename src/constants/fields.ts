@@ -4,4 +4,7 @@ export const FIELDS = {
   EMAIL: 'email',
   PASSWORD: 'password',
   CONFIRM_PASSWORD: 'confirmPassword',
+  REASON: 'reason',
+  DATE: 'date',
+  TIME: 'time',
 } as const;
