@@ -46,7 +46,7 @@ export async function getVerifiedUserData() {
   } = await supabase.auth.getUser();
 
   if (!user?.id || error) {
-    redirect(ROUTES.SIGN_IN);
+    redirect(`${ROUTES.AUTH}${ROUTES.SIGN_IN}`);
   }
 
   return { firstName: user.user_metadata?.first_name, lastName: user.user_metadata?.last_name };
@@ -57,7 +57,7 @@ export async function getUserDataFromToken() {
   const { data, error } = await supabase.auth.getClaims();
 
   if (error || !data?.claims?.email) {
-    redirect(ROUTES.SIGN_IN);
+    redirect(`${ROUTES.AUTH}${ROUTES.SIGN_IN}`);
   }
 
   return {
