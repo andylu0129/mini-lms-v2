@@ -11,6 +11,17 @@ declare
   -- Keep in sync with LEAD_TIME_MINUTES in src/constants/consultation-card.ts.
   lead_time constant interval := interval '60 minutes';
 begin
+  -- New bookings and datetime changes must be at least the lead time ahead,
+  -- matching the reschedule/cancel window.
+  if (tg_op = 'INSERT' or new.datetime is distinct from old.datetime)
+     and new.datetime <= now() + lead_time then
+    raise exception 'consultation time must be at least % ahead', lead_time;
+  end if;
+
+  if tg_op = 'INSERT' then
+    return new;
+  end if;
+
   -- Complete, incomplete and cancelled are the final states, no further changes.
   if old.status <> 'upcoming' then
     raise exception 'consultation is % and can no longer be changed', old.status;
@@ -32,6 +43,6 @@ end;
 $$ language plpgsql;
 
 create trigger enforce_consultation_lifecycle
-  before update on public.consultations
+  before insert or update on public.consultations
   for each row execute function public.enforce_consultation_lifecycle();
 

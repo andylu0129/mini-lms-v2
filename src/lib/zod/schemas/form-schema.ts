@@ -1,6 +1,10 @@
+import { LEAD_TIME_MINUTES } from '@/constants/consultation-card';
 import { CONSULTATION_STATUS } from '@/constants/consultation-status';
+import { FIELDS } from '@/constants/fields';
+import { TIME } from '@/constants/time';
 import { ROLES } from '@/constants/roles';
 import { VALIDATION } from '@/constants/validation';
+import { parse } from 'date-fns';
 import { z } from 'zod';
 
 export const signUpFormSchema = z
@@ -40,29 +44,52 @@ export const signInRequestSchema = signInFormSchema.extend({
 
 export type SignInRequestValues = z.infer<typeof signInRequestSchema>;
 
-// What the booking form collects: date and time are separate inputs,
-// combined into an ISO datetime on submit.
-export const bookingFormSchema = z.object({
-  firstName: z.string().min(1, VALIDATION.FIRST_NAME_REQUIRED),
-  lastName: z.string().min(1, VALIDATION.LAST_NAME_REQUIRED),
-  reason: z.string().min(1, VALIDATION.REASON_REQUIRED),
+// Booking and reschedule collect the same date + time pair as separate
+// inputs, combined into an ISO datetime on submit.
+const scheduleFields = {
   date: z.date({ error: VALIDATION.DATE_REQUIRED }),
   time: z.string().min(1, VALIDATION.TIME_REQUIRED),
-});
+};
+
+export const bookingFormSchema = z
+  .object({
+    firstName: z.string().min(1, VALIDATION.FIRST_NAME_REQUIRED),
+    lastName: z.string().min(1, VALIDATION.LAST_NAME_REQUIRED),
+    reason: z.string().min(1, VALIDATION.REASON_REQUIRED),
+    ...scheduleFields,
+  })
+  .superRefine((data, ctx) => {
+    // The calendar only blocks past days; the combined date + time must also
+    // be at least the lead time ahead, matching the reschedule/cancel window.
+    if (parse(data.time, 'HH:mm', data.date).getTime() <= Date.now() + LEAD_TIME_MINUTES * TIME.MS_PER_MINUTE) {
+      ctx.addIssue({ code: 'custom', message: VALIDATION.DATETIME_TOO_SOON, path: [FIELDS.TIME] });
+    }
+  });
 
 export type BookingFormValues = z.infer<typeof bookingFormSchema>;
 
-// Reschedule collects the same date + time pair as booking.
-export const rescheduleFormSchema = bookingFormSchema.pick({ date: true, time: true });
+export const rescheduleFormSchema = z.object(scheduleFields).superRefine((data, ctx) => {
+  // The calendar only blocks past days; the combined date + time must also
+  // be at least the lead time ahead, matching the reschedule/cancel window.
+  if (parse(data.time, 'HH:mm', data.date).getTime() <= Date.now() + LEAD_TIME_MINUTES * TIME.MS_PER_MINUTE) {
+    ctx.addIssue({ code: 'custom', message: VALIDATION.DATETIME_TOO_SOON, path: [FIELDS.TIME] });
+  }
+});
 
 export type RescheduleFormValues = z.infer<typeof rescheduleFormSchema>;
 
-// What the consultations API receives.
+// What the consultations API receives. The datetime check runs on the server
+// clock, so a client with a skewed clock can't book into the past.
 export const consultationRequestSchema = z.object({
   firstName: z.string().min(1, VALIDATION.FIRST_NAME_REQUIRED),
   lastName: z.string().min(1, VALIDATION.LAST_NAME_REQUIRED),
   reason: z.string().min(1, VALIDATION.REASON_REQUIRED),
-  datetime: z.iso.datetime({ offset: true, error: VALIDATION.DATETIME_INVALID }),
+  datetime: z.iso
+    .datetime({ offset: true, error: VALIDATION.DATETIME_INVALID })
+    .refine(
+      (value) => new Date(value).getTime() > Date.now() + LEAD_TIME_MINUTES * TIME.MS_PER_MINUTE,
+      VALIDATION.DATETIME_TOO_SOON,
+    ),
 });
 
 export type ConsultationRequestValues = z.infer<typeof consultationRequestSchema>;
@@ -70,7 +97,12 @@ export type ConsultationRequestValues = z.infer<typeof consultationRequestSchema
 // Partial update: reschedule (datetime), cancel, or mark complete/incomplete (status).
 export const consultationUpdateSchema = z
   .object({
-    datetime: z.iso.datetime({ offset: true, local: true, error: VALIDATION.DATETIME_INVALID }),
+    datetime: z.iso
+      .datetime({ offset: true, local: true, error: VALIDATION.DATETIME_INVALID })
+      .refine(
+        (value) => new Date(value).getTime() > Date.now() + LEAD_TIME_MINUTES * TIME.MS_PER_MINUTE,
+        VALIDATION.DATETIME_TOO_SOON,
+      ),
     status: z.enum([
       CONSULTATION_STATUS.UPCOMING,
       CONSULTATION_STATUS.COMPLETE,
