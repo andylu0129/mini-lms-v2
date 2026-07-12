@@ -297,16 +297,18 @@ npm run test:coverage
 
 1. **Set up the Cypress environment file**
 
-   Create a copy of `cypress.env.json.example` named `cypress.env.json` and fill in the credentials of an existing user in your local Supabase instance:
+   Create a copy of `cypress.env.json.example` named `cypress.env.json` and fill in the credentials of existing users in your local Supabase instance:
 
    ```json
    {
      "TEST_USER_EMAIL": "your-test-user@example.com",
-     "TEST_USER_PASSWORD": "YourPassword1!"
+     "TEST_USER_PASSWORD": "YourPassword1!",
+     "TEST_ADMIN_EMAIL": "your-test-admin@example.com",
+     "TEST_ADMIN_PASSWORD": "YourPassword1!"
    }
    ```
 
-   > The test user must already exist in your local Supabase instance. You can register one via the sign-up page or create one directly through the Supabase dashboard at [http://127.0.0.1:54323](http://127.0.0.1:54323).
+   > Both users must already exist in your local Supabase instance and be email-confirmed (see [Email Confirmation (Mailpit)](#email-confirmation-mailpit)). Register them via the sign-up page, then promote the admin as described in [Creating an Admin User](#creating-an-admin-user) — the admin specs sign in through the admin portal and will fail without a genuinely promoted admin.
 
 2. **Start the dev server**
 
@@ -494,8 +496,18 @@ Every browser → API arrow passes through the middleware first; every PostgREST
 
 ### Testing
 
-- **Unit tests** (Vitest) live under `test/`, separate from source, with V8 coverage available.
-- **E2E tests** (Cypress) run against the live dev server and the real local Supabase stack, no mocks, using a pre-registered test user.
+- **Unit tests** (Vitest) live under `test/`, separate from source, with V8 coverage available. `test/unit/utils/consultations.test.unit.ts` covers the domain helpers with fake timers pinning the clock: the snake_case→camelCase row mapping, the derived `past` status (including the exact-boundary case), the lead-time rules in `canModify` (allowed / boundary / locked / wrong status) and `canMark`, and the relative time labels.
+- **E2E tests** (Cypress) run against the live dev server and the real local Supabase stack, no mocks, using pre-registered student and admin test users:
+
+  | Spec                      | Coverage                                                                                                                                                                                                                                             |
+  | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+  | `auth/sign-in.cy.ts`      | Form rendering, unauthenticated redirect, sign-up link, student/admin portal toggle, invalid credentials, successful sign-in                                                                                                                         |
+  | `auth/sign-up.cy.ts`      | Form rendering, sign-in link, required-field and password-mismatch validation, success screen that displays identically for new and already-registered emails (account-enumeration check)                                                            |
+  | `student-dashboard.cy.ts` | Welcome message, stat cards, upcoming/past tab switching, navigation to booking, sign-out via the account menu                                                                                                                                       |
+  | `booking.cy.ts`           | Form rendering, prefilled and locked name fields, reason/date validation, cancel navigation, a full booking that redirects to the dashboard                                                                                                          |
+  | `admin-view.cy.ts`        | Read-only overview, stats, search with empty state and clear button, status filter, and portal-mismatch checks in both directions (student credentials rejected on the admin portal and vice versa, with the same generic error as a wrong password) |
+
+- **Custom commands** (`cypress/support/commands.ts`): `signInStudent` / `signInAdmin` cache their sessions via `cy.session` so each signs in once per run, and `waitForHydration` waits until React has hydrated the page before tests interact with it to prevent the situation where clicks and keystrokes dispatched against server-rendered HTML land on elements whose handlers do not exist yet.
 
 ### Assumptions and Considerations
 

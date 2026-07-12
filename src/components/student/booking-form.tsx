@@ -37,9 +37,6 @@ export function BookingForm() {
     defaultValues: {
       firstName: user.firstName ?? '',
       lastName: user.lastName ?? '',
-      reason: '',
-      date: undefined,
-      time: '',
     },
   });
 

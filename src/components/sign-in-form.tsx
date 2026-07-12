@@ -31,7 +31,6 @@ export default function SignInForm() {
     formState: { errors, isSubmitting },
   } = useForm<SignInFormValues>({
     resolver: zodResolver(signInFormSchema),
-    defaultValues: { email: '', password: '' },
   });
 
   const onSubmit = async (values: SignInFormValues) => {

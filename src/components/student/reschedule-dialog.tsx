@@ -41,7 +41,6 @@ export function RescheduleDialog({ consultation, onChanged }: { consultation: Co
     formState: { errors, isSubmitting },
   } = useForm<RescheduleFormValues>({
     resolver: zodResolver(rescheduleFormSchema),
-    defaultValues: { date: when, time: format(when, 'HH:mm') },
   });
 
   const handleOpenChange = (next: boolean) => {
