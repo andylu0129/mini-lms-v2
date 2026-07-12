@@ -18,6 +18,7 @@ import {
 } from '@/lib/shadcn/components/ui/alert-dialog';
 import { Button } from '@/lib/shadcn/components/ui/button';
 import { Spinner } from '@/lib/shadcn/components/ui/spinner';
+import type { Consultation } from '@/types/global';
 import { CircleXIcon } from 'lucide-react';
 import { useState } from 'react';
 
@@ -27,8 +28,6 @@ export function CancelDialog({ consultation, onChanged }: { consultation: Consul
   const [error, setError] = useState<string | null>(null);
 
   async function handleCancel(event: React.MouseEvent) {
-    // AlertDialogAction closes on click by default; stay open until the
-    // request settles.
     event.preventDefault();
     setLoading(true);
     setError(null);

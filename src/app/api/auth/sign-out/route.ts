@@ -5,12 +5,10 @@ import { NextResponse } from 'next/server';
 export async function POST() {
   const supabase = await createClient();
 
-  // Revoke only this session; global scope would sign the user out of every device.
-  // signOut() also removes the session cookies through the SSR cookie adapter.
   const { error } = await supabase.auth.signOut();
 
   if (error) {
-    // Revocation failed (or there was no valid session) - still remove the
+    // Revocation failed (or there was no valid session), still remove the
     // cookies so the browser cannot keep auto-authenticating with them.
     await clearAuthCookies();
   }

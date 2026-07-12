@@ -19,6 +19,7 @@ import {
 } from '@/lib/shadcn/components/ui/alert-dialog';
 import { Button } from '@/lib/shadcn/components/ui/button';
 import { Spinner } from '@/lib/shadcn/components/ui/spinner';
+import type { Consultation, ConsultationStatus } from '@/types/global';
 import { CircleAlertIcon, CircleCheckIcon } from 'lucide-react';
 import { useState } from 'react';
 
@@ -40,8 +41,6 @@ export function MarkDialog({
   const label = isComplete ? CONSULTATION_CARD.MARK_COMPLETE : CONSULTATION_CARD.MARK_INCOMPLETE;
 
   async function handleConfirm(event: React.MouseEvent) {
-    // AlertDialogAction closes on click by default; stay open until the
-    // request settles.
     event.preventDefault();
     setLoading(true);
     setError(null);

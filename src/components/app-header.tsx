@@ -80,7 +80,6 @@ export function AppHeader() {
                   disabled={isSigningOut}
                   className="cursor-pointer"
                   onSelect={(event) => {
-                    // Keep the menu open so the pending state stays visible.
                     event.preventDefault();
                     handleSignOut();
                   }}

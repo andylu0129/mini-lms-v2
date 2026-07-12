@@ -3,10 +3,11 @@
 import { QUERY_PARAMS } from '@/constants/query-params';
 import { API_ROUTES } from '@/constants/routes';
 import { VALIDATION } from '@/constants/validation';
+import type { AdminStatusFilter, Consultation } from '@/types/global';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 // One page of the admin consultations table, refetched whenever the page,
-// status filter or search term changes.
+// status filter, or search term changes.
 export function useAdminConsultations({
   page,
   status,

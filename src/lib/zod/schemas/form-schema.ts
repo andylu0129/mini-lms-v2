@@ -1,8 +1,8 @@
 import { LEAD_TIME_MINUTES } from '@/constants/consultation-card';
 import { CONSULTATION_STATUS } from '@/constants/consultation-status';
 import { FIELDS } from '@/constants/fields';
-import { TIME } from '@/constants/time';
 import { ROLES } from '@/constants/roles';
+import { TIME } from '@/constants/time';
 import { VALIDATION } from '@/constants/validation';
 import { parse } from 'date-fns';
 import { z } from 'zod';
@@ -44,8 +44,6 @@ export const signInRequestSchema = signInFormSchema.extend({
 
 export type SignInRequestValues = z.infer<typeof signInRequestSchema>;
 
-// Booking and reschedule collect the same date + time pair as separate
-// inputs, combined into an ISO datetime on submit.
 const scheduleFields = {
   date: z.date({ error: VALIDATION.DATE_REQUIRED }),
   time: z.string().min(1, VALIDATION.TIME_REQUIRED),
@@ -59,8 +57,6 @@ export const bookingFormSchema = z
     ...scheduleFields,
   })
   .superRefine((data, ctx) => {
-    // The calendar only blocks past days; the combined date + time must also
-    // be at least the lead time ahead, matching the reschedule/cancel window.
     if (parse(data.time, 'HH:mm', data.date).getTime() <= Date.now() + LEAD_TIME_MINUTES * TIME.MS_PER_MINUTE) {
       ctx.addIssue({ code: 'custom', message: VALIDATION.DATETIME_TOO_SOON, path: [FIELDS.TIME] });
     }
@@ -69,8 +65,6 @@ export const bookingFormSchema = z
 export type BookingFormValues = z.infer<typeof bookingFormSchema>;
 
 export const rescheduleFormSchema = z.object(scheduleFields).superRefine((data, ctx) => {
-  // The calendar only blocks past days; the combined date + time must also
-  // be at least the lead time ahead, matching the reschedule/cancel window.
   if (parse(data.time, 'HH:mm', data.date).getTime() <= Date.now() + LEAD_TIME_MINUTES * TIME.MS_PER_MINUTE) {
     ctx.addIssue({ code: 'custom', message: VALIDATION.DATETIME_TOO_SOON, path: [FIELDS.TIME] });
   }
@@ -79,7 +73,7 @@ export const rescheduleFormSchema = z.object(scheduleFields).superRefine((data, 
 export type RescheduleFormValues = z.infer<typeof rescheduleFormSchema>;
 
 // What the consultations API receives. The datetime check runs on the server
-// clock, so a client with a skewed clock can't book into the past.
+// clock, so a client with an adjusted clock can't book into the past.
 export const consultationRequestSchema = z.object({
   firstName: z.string().min(1, VALIDATION.FIRST_NAME_REQUIRED),
   lastName: z.string().min(1, VALIDATION.LAST_NAME_REQUIRED),

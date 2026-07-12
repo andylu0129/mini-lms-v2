@@ -3,9 +3,11 @@ import { HTTP_STATUS } from '@/constants/http-status';
 import { RPCS } from '@/constants/rpcs';
 import { VALIDATION } from '@/constants/validation';
 import { createClient } from '@/lib/supabase/server';
+import type { Database } from '@/types/database';
+import type { ConsultationStats } from '@/types/global';
 import { NextResponse } from 'next/server';
 
-type StatsRow = { status: ConsultationStatus; past: boolean; count: number };
+type StatsRow = Database['public']['Functions']['consultation_stats']['Returns'][number];
 
 export async function GET() {
   const supabase = await createClient();
@@ -16,14 +18,10 @@ export async function GET() {
 
   const { data, error } = await supabase.rpc(RPCS.CONSULTATION_STATS);
   if (error) {
-    // Never forward database errors to the client - they leak schema details.
     console.error('Failed to load consultation stats:', error);
     return NextResponse.json({ error: VALIDATION.SERVER_ERROR }, { status: HTTP_STATUS.INTERNAL_SERVER_ERROR });
   }
 
-  // The function only returns rows for buckets that exist; fill the rest with 0.
-  // A still-'upcoming' row whose time has passed counts as PAST, the derived
-  // status, so it never inflates the upcoming count.
   const stats: ConsultationStats = {
     [CONSULTATION_STATUS.UPCOMING]: 0,
     [CONSULTATION_STATUS.PAST]: 0,
@@ -31,7 +29,7 @@ export async function GET() {
     [CONSULTATION_STATUS.INCOMPLETE]: 0,
     [CONSULTATION_STATUS.CANCELLED]: 0,
   };
-  for (const row of ((data ?? []) as StatsRow[])) {
+  for (const row of (data ?? []) as StatsRow[]) {
     if (row.status === CONSULTATION_STATUS.UPCOMING && row.past) {
       stats[CONSULTATION_STATUS.PAST] += Number(row.count);
     } else {

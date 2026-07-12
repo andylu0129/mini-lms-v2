@@ -7,6 +7,7 @@ import { TABLES } from '@/constants/tables';
 import { VALIDATION } from '@/constants/validation';
 import { createClient } from '@/lib/supabase/server';
 import { consultationRequestSchema } from '@/lib/zod/schemas/form-schema';
+import type { ConsultationRow } from '@/types/global';
 import { toConsultation } from '@/utils/consultations';
 import { NextResponse } from 'next/server';
 
@@ -14,10 +15,13 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const filter = searchParams.get(QUERY_PARAMS.FILTER) ?? CONSULTATION_FILTER.UPCOMING;
   const offset = Number(searchParams.get(QUERY_PARAMS.OFFSET) ?? 0);
+  const asOfParam = searchParams.get(QUERY_PARAMS.AS_OF);
+  const asOfTime = asOfParam === null ? null : new Date(asOfParam).getTime();
   if (
     (filter !== CONSULTATION_FILTER.UPCOMING && filter !== CONSULTATION_FILTER.PAST) ||
     !Number.isInteger(offset) ||
-    offset < 0
+    offset < 0 ||
+    (asOfTime !== null && Number.isNaN(asOfTime))
   ) {
     return NextResponse.json({ error: VALIDATION.INVALID_REQUEST }, { status: HTTP_STATUS.BAD_REQUEST });
   }
@@ -28,24 +32,22 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: VALIDATION.UNAUTHORIZED }, { status: HTTP_STATUS.UNAUTHORIZED });
   }
 
-  // Upcoming: still-upcoming rows whose time hasn't passed yet, soonest first.
-  // Past: everything else - complete/incomplete/cancelled, plus still-upcoming
-  // rows already past their time (shown there so they can be marked) - most
-  // recent first. RLS scopes rows to the signed-in student.
-  const now = new Date().toISOString();
+  // The time boundary is pinned to the client's asOf for a whole scroll session.
+  // Re-evaluating now() per page lets rows cross the boundary between
+  // pages, shifting the offsets so a row gets skipped or duplicated.
+  const asOf = new Date(asOfTime === null ? Date.now() : Math.min(asOfTime, Date.now())).toISOString();
   const base = supabase.from(TABLES.CONSULTATIONS).select();
   const query =
     filter === CONSULTATION_FILTER.UPCOMING
-      ? base.eq('status', CONSULTATION_STATUS.UPCOMING).gt('datetime', now).order('datetime', { ascending: true })
+      ? base.eq('status', CONSULTATION_STATUS.UPCOMING).gt('datetime', asOf).order('datetime', { ascending: true })
       : base
-          .or(`status.neq.${CONSULTATION_STATUS.UPCOMING},datetime.lte.${now}`)
+          .or(`status.neq.${CONSULTATION_STATUS.UPCOMING},datetime.lte.${asOf}`)
           .order('datetime', { ascending: false });
 
   const pageSize = PAGINATION.CONSULTATIONS_PAGE_SIZE;
   const { data, error } = await query.range(offset, offset + pageSize - 1);
 
   if (error) {
-    // Never forward database errors to the client - they leak schema details.
     console.error('Failed to list consultations:', error);
     return NextResponse.json({ error: VALIDATION.SERVER_ERROR }, { status: HTTP_STATUS.INTERNAL_SERVER_ERROR });
   }
@@ -95,7 +97,6 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
-    // Never forward database errors to the client - they leak schema details.
     console.error('Failed to create consultation:', error);
     return NextResponse.json({ error: VALIDATION.SERVER_ERROR }, { status: HTTP_STATUS.INTERNAL_SERVER_ERROR });
   }

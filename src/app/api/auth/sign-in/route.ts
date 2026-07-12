@@ -28,11 +28,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: error.status ?? HTTP_STATUS.BAD_REQUEST });
   }
 
-  // The custom access token hook stamps user_role into the JWT at sign-in.
   const { data } = await supabase.auth.getClaims();
   const role = data?.claims?.user_role;
 
-  // No role means misconfiguration, treat it like it is not authenticated.
   if (!role) {
     await supabase.auth.signOut();
     return NextResponse.json({ error: VALIDATION.SIGN_IN_FAILED }, { status: HTTP_STATUS.INTERNAL_SERVER_ERROR });

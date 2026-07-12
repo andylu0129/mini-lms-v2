@@ -21,6 +21,7 @@ import { Input } from '@/lib/shadcn/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/lib/shadcn/components/ui/popover';
 import { Spinner } from '@/lib/shadcn/components/ui/spinner';
 import { RescheduleFormValues, rescheduleFormSchema } from '@/lib/zod/schemas/form-schema';
+import type { Consultation } from '@/types/global';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, parse } from 'date-fns';
 import { CalendarIcon, TriangleAlertIcon } from 'lucide-react';
@@ -40,7 +41,6 @@ export function RescheduleDialog({ consultation, onChanged }: { consultation: Co
     formState: { errors, isSubmitting },
   } = useForm<RescheduleFormValues>({
     resolver: zodResolver(rescheduleFormSchema),
-    defaultValues: { date: when, time: format(when, 'HH:mm') },
   });
 
   const handleOpenChange = (next: boolean) => {
@@ -49,13 +49,11 @@ export function RescheduleDialog({ consultation, onChanged }: { consultation: Co
     }
     setOpen(next);
     if (next) {
-      // Start from the consultation's current schedule on every open.
       reset({ date: when, time: format(when, 'HH:mm') });
     }
   };
 
   const onSubmit = async (values: RescheduleFormValues) => {
-    // Combine the separate date + time inputs and convert to UTC for storage.
     const datetime = parse(values.time, 'HH:mm', values.date).toISOString();
     try {
       const response = await fetch(`${API_ROUTES.CONSULTATIONS}/${consultation.id}`, {
