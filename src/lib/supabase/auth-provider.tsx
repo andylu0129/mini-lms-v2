@@ -36,7 +36,7 @@ export function AuthProvider({ user, children }: { user: UserDetails; children: 
     } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_OUT') {
         setIsAuthenticated(false);
-        router.push(ROUTES.SIGN_IN);
+        router.push(`${ROUTES.AUTH}${ROUTES.SIGN_IN}`);
       }
     });
 
@@ -45,7 +45,7 @@ export function AuthProvider({ user, children }: { user: UserDetails; children: 
     channel.onmessage = (event) => {
       if (event.data === BROADCAST.MESSAGE_SIGN_OUT) {
         setIsAuthenticated(false);
-        router.push(ROUTES.SIGN_IN);
+        router.push(`${ROUTES.AUTH}${ROUTES.SIGN_IN}`);
       }
     };
 

@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation';
 export default async function Page() {
   const user = await getUserDataFromToken();
   if (user.role !== ROLES.ADMIN) {
-    redirect(ROUTES.SIGN_IN);
+    redirect(`${ROUTES.AUTH}${ROUTES.SIGN_IN}`);
   }
 
   return <AdminView />;
