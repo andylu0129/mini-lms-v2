@@ -1,0 +1,4 @@
+export const PAGINATION = {
+  CONSULTATIONS_PAGE_SIZE: 10,
+  ADMIN_TABLE_PAGE_SIZE: 10,
+} as const;
