@@ -3,6 +3,7 @@
 import { QUERY_PARAMS } from '@/constants/query-params';
 import { API_ROUTES } from '@/constants/routes';
 import { VALIDATION } from '@/constants/validation';
+import { ConsultationFilter, Consultation } from '@/types/global';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 // Paginated consultation list for one filter. Fetches the first page when the
