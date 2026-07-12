@@ -46,3 +46,7 @@ begin
   return new;
 end;
 $$ language plpgsql;
+
+create trigger preserve_created_at
+  before update on public.consultations
+  for each row execute function public.preserve_created_at();

@@ -1,4 +1,9 @@
-type ConsultationStatus = 'upcoming' | 'complete' | 'incomplete' | 'cancelled';
+// 'past' is derived, never stored: an 'upcoming' row whose time has passed.
+type ConsultationStatus = 'upcoming' | 'past' | 'complete' | 'incomplete' | 'cancelled';
+
+type ConsultationFilter = 'upcoming' | 'past';
+
+type ConsultationStats = Record<ConsultationStatus, number>;
 
 type Consultation = {
   id: string;
@@ -11,4 +16,17 @@ type Consultation = {
   datetime: string;
   status: ConsultationStatus;
   createdAt: string;
+};
+
+// Row shape of public.consultations as returned by PostgREST.
+type ConsultationRow = {
+  id: string;
+  user_id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  reason: string;
+  datetime: string;
+  status: ConsultationStatus;
+  created_at: string;
 };

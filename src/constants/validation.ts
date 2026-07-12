@@ -17,6 +17,7 @@ export const VALIDATION = {
   NOTHING_TO_UPDATE: 'Nothing to update.',
   UNAUTHORIZED: 'You must be signed in.',
   CONSULTATION_NOT_FOUND: 'Consultation not found.',
+  CONSULTATION_LOCKED: 'Changes are closed for this consultation.',
   SERVER_ERROR: 'Something went wrong. Please try again.',
   INVALID_CREDENTIALS: 'Invalid login credentials',
   SIGN_IN_FAILED: 'Unable to sign in. Please try again later.',
