@@ -60,8 +60,8 @@ A consultation portal that allows students to register, book consultations, and 
 Clone the repository:
 
 ```bash
-git clone https://github.com/andylu0129/mini-lms.git
-cd mini-lms
+git clone https://github.com/andylu0129/mini-lms-v2.git
+cd mini-lms-v2
 ```
 
 Install dependencies:
