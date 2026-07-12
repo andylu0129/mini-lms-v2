@@ -16,4 +16,6 @@ export const API_ROUTES = {
   SIGN_OUT: '/api/auth/sign-out',
   CONSULTATIONS: '/api/consultations',
   CONSULTATION_STATS: '/api/consultations/stats',
+  ADMIN_CONSULTATIONS: '/api/admin/consultations',
+  ADMIN_CONSULTATION_STATS: '/api/admin/consultations/stats',
 } as const;

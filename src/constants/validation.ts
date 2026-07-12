@@ -16,6 +16,7 @@ export const VALIDATION = {
   TIME_REQUIRED: 'Pick a time.',
   NOTHING_TO_UPDATE: 'Nothing to update.',
   UNAUTHORIZED: 'You must be signed in.',
+  FORBIDDEN: 'You do not have access to this resource.',
   CONSULTATION_NOT_FOUND: 'Consultation not found.',
   CONSULTATION_LOCKED: 'Changes are closed for this consultation.',
   SERVER_ERROR: 'Something went wrong. Please try again.',

@@ -25,6 +25,12 @@ comment on table public.role_permissions is 'Application permissions for each ro
 alter table public.user_roles enable row level security;
 alter table public.role_permissions enable row level security;
 
+-- Map permissions to roles. Granting a new role a capability (or adding a new
+-- permission) is an insert here - no policy rewrites needed.
+insert into public.role_permissions (role, permission)
+values
+  ('admin', 'consultations.read');
+
 -- Every new auth user starts as a student; admins are promoted via seed/manually or from invitation based approach.
 create function public.handle_new_user()
 returns trigger
