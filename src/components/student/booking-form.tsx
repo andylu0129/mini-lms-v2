@@ -46,7 +46,6 @@ export function BookingForm() {
   const disabled = isSubmitting || success;
 
   const onSubmit = async (values: BookingFormValues) => {
-    // Combine the separate date + time inputs and convert to UTC for storage.
     const datetime = parse(values.time, 'HH:mm', values.date).toISOString();
 
     try {

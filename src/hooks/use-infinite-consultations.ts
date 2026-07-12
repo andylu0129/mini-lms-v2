@@ -18,6 +18,10 @@ export function useInfiniteConsultations(filter: ConsultationFilter) {
   const generationRef = useRef(0);
   const offsetRef = useRef(0);
   const inFlightRef = useRef(false);
+  // Pins the upcoming/past time boundary for a whole scroll session, so a
+  // consultation crossing its start time between pages can't shift the
+  // offsets (which would skip or duplicate a row).
+  const asOfRef = useRef(new Date().toISOString());
 
   const fetchPage = useCallback(
     async (generation: number) => {
@@ -28,6 +32,7 @@ export function useInfiniteConsultations(filter: ConsultationFilter) {
         const params = new URLSearchParams({
           [QUERY_PARAMS.FILTER]: filter,
           [QUERY_PARAMS.OFFSET]: String(offsetRef.current),
+          [QUERY_PARAMS.AS_OF]: asOfRef.current,
         });
         const response = await fetch(`${API_ROUTES.CONSULTATIONS}?${params}`);
         const body = await response.json().catch(() => null);
@@ -62,6 +67,7 @@ export function useInfiniteConsultations(filter: ConsultationFilter) {
   const reload = useCallback(() => {
     generationRef.current += 1;
     offsetRef.current = 0;
+    asOfRef.current = new Date().toISOString();
     setConsultations([]);
     setHasMore(false);
     void fetchPage(generationRef.current);

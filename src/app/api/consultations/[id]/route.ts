@@ -45,12 +45,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .single();
 
   if (fetchError) {
-    // RLS filters out other students' rows, so a foreign id looks identical
-    // to a nonexistent one: no rows found.
     if (fetchError.code === ERRORS.POSTGREST_NO_ROWS) {
       return NextResponse.json({ error: VALIDATION.CONSULTATION_NOT_FOUND }, { status: HTTP_STATUS.NOT_FOUND });
     }
-    // Never forward database errors to the client - they leak schema details.
+
     console.error('Failed to load consultation:', fetchError);
     return NextResponse.json({ error: VALIDATION.SERVER_ERROR }, { status: HTTP_STATUS.INTERNAL_SERVER_ERROR });
   }
@@ -75,12 +73,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .single();
 
   if (error) {
-    // RLS filters out other students' rows, so a foreign id looks identical
-    // to a nonexistent one: no rows updated.
     if (error.code === ERRORS.POSTGREST_NO_ROWS) {
       return NextResponse.json({ error: VALIDATION.CONSULTATION_NOT_FOUND }, { status: HTTP_STATUS.NOT_FOUND });
     }
-    // Never forward database errors to the client - they leak schema details.
+
     console.error('Failed to update consultation:', error);
     return NextResponse.json({ error: VALIDATION.SERVER_ERROR }, { status: HTTP_STATUS.INTERNAL_SERVER_ERROR });
   }

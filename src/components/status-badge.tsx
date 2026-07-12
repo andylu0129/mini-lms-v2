@@ -1,5 +1,6 @@
 import { CONSULTATION_STATUS, CONSULTATION_STATUS_LABELS } from '@/constants/consultation-status';
 import { Badge } from '@/lib/shadcn/components/ui/badge';
+import type { ConsultationStatus } from '@/types/global';
 import { CircleAlertIcon, CircleCheckIcon, CircleXIcon, ClockIcon, HistoryIcon } from 'lucide-react';
 
 const CONFIG: Record<ConsultationStatus, { variant: 'default' | 'secondary' | 'outline'; icon: typeof ClockIcon }> = {

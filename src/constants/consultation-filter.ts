@@ -5,7 +5,6 @@ export const CONSULTATION_FILTER = {
   PAST: 'past',
 } as const;
 
-// Admin table status filter value meaning "no status filter".
 export const STATUS_FILTER_ALL = 'all';
 
 export const PAST_STATUSES = [

@@ -33,8 +33,7 @@ export async function POST(request: Request) {
     },
   });
 
-  // Prevent account enumeration: an already-registered email must be
-  // indistinguishable from a successful sign-up, and the user object is never returned.
+  // Mitigates account enumeration.
   if (error && error.code !== ERRORS.USER_ALREADY_EXISTS && error.code !== ERRORS.EMAIL_EXISTS) {
     return NextResponse.json({ error: error.message }, { status: error.status ?? HTTP_STATUS.BAD_REQUEST });
   }

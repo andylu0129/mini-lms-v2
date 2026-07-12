@@ -8,6 +8,7 @@ import { CONSULTATION_CARD, LEAD_TIME_MINUTES } from '@/constants/consultation-c
 import { CONSULTATION_STATUS } from '@/constants/consultation-status';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/lib/shadcn/components/ui/card';
 import { Separator } from '@/lib/shadcn/components/ui/separator';
+import type { Consultation } from '@/types/global';
 import { canMark, canModify, formatDate, formatTime, relativeLabel } from '@/utils/consultations';
 import { CalendarIcon, ClockIcon, LockIcon } from 'lucide-react';
 

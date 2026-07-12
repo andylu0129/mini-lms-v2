@@ -1,5 +1,5 @@
-// Mirrors the public.consultation_status enum in the database, plus PAST,
-// which is derived (an 'upcoming' row whose time has passed) and never stored.
+import type { ConsultationStatus } from '@/types/global';
+
 export const CONSULTATION_STATUS = {
   UPCOMING: 'upcoming',
   PAST: 'past',

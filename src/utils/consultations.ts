@@ -1,6 +1,7 @@
 import { LEAD_TIME_MINUTES } from '@/constants/consultation-card';
 import { CONSULTATION_STATUS } from '@/constants/consultation-status';
 import { TIME } from '@/constants/time';
+import type { Consultation, ConsultationRow } from '@/types/global';
 import { format, formatDistanceToNow } from 'date-fns';
 
 export function toConsultation(row: ConsultationRow): Consultation {
@@ -21,7 +22,6 @@ export function toConsultation(row: ConsultationRow): Consultation {
   };
 }
 
-// All formatting renders in the viewer's local timezone (datetimes are stored as UTC).
 export function formatDate(datetime: string) {
   return format(new Date(datetime), 'PPP');
 }
@@ -35,7 +35,6 @@ export function relativeLabel(datetime: string) {
   return formatDistanceToNow(new Date(datetime), { addSuffix: true });
 }
 
-// Reschedule/cancel stay available until LEAD_TIME_MINUTES before the start time.
 export function canModify(consultation: Consultation) {
   return (
     consultation.status === CONSULTATION_STATUS.UPCOMING &&
@@ -43,7 +42,6 @@ export function canModify(consultation: Consultation) {
   );
 }
 
-// Complete/incomplete can only be set on a past consultation.
 export function canMark(consultation: Consultation) {
   return consultation.status === CONSULTATION_STATUS.PAST;
 }

@@ -1,19 +1,19 @@
-// 'past' is derived, never stored: an 'upcoming' row whose time has passed.
-type ConsultationStatus = 'upcoming' | 'past' | 'complete' | 'incomplete' | 'cancelled';
+import type { Database, Enums, Tables } from '@/types/database';
 
-type ConsultationFilter = 'upcoming' | 'past';
+// The stored enum plus 'past', which is derived (an 'upcoming' row whose time
+// has passed) and never stored.
+export type ConsultationStatus = Enums<'consultation_status'> | 'past';
 
-type ConsultationStats = Record<ConsultationStatus, number>;
+export type ConsultationFilter = 'upcoming' | 'past';
 
-type AdminStats = {
-  total: number;
-  upcoming: number;
-  students: number;
-};
+export type ConsultationStats = Record<ConsultationStatus, number>;
 
-type AdminStatusFilter = 'all' | ConsultationStatus;
+// One row of the admin_consultation_stats() function, as generated.
+export type AdminStats = Database['public']['Functions']['admin_consultation_stats']['Returns'][number];
 
-type Consultation = {
+export type AdminStatusFilter = 'all' | ConsultationStatus;
+
+export type Consultation = {
   id: string;
   studentId: string;
   studentName: string;
@@ -26,15 +26,7 @@ type Consultation = {
   createdAt: string;
 };
 
-// Row shape of public.consultations as returned by PostgREST.
-type ConsultationRow = {
-  id: string;
-  user_id: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  reason: string;
-  datetime: string;
-  status: ConsultationStatus;
-  created_at: string;
-};
+// Row shape of public.consultations, derived from the generated schema types
+// so it cannot drift from the database. Note its status is the stored 4-value
+// enum: 'past' only exists after toConsultation() derives it.
+export type ConsultationRow = Tables<'consultations'>;

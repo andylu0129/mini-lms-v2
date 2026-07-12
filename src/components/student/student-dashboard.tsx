@@ -13,6 +13,7 @@ import { Skeleton } from '@/lib/shadcn/components/ui/skeleton';
 import { Spinner } from '@/lib/shadcn/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/lib/shadcn/components/ui/tabs';
 import { useUserDetails } from '@/lib/supabase/auth-provider';
+import type { ConsultationFilter, ConsultationStats } from '@/types/global';
 import { CalendarPlusIcon, CircleCheckIcon, ClockIcon, InboxIcon, RotateCwIcon, TriangleAlertIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
@@ -90,8 +91,6 @@ export function StudentDashboard() {
     loadStats();
   }, [loadStats]);
 
-  // A reschedule, cancel or mark moves rows between filters, so refresh both
-  // the list and the stats.
   const handleChanged = () => {
     reload();
     loadStats();

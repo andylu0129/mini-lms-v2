@@ -24,6 +24,7 @@ import {
 } from '@/lib/shadcn/components/ui/select';
 import { Skeleton } from '@/lib/shadcn/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/lib/shadcn/components/ui/table';
+import type { AdminStats, AdminStatusFilter } from '@/types/global';
 import { formatDate, formatTime } from '@/utils/consultations';
 import {
   CalendarCheckIcon,
@@ -83,7 +84,6 @@ export function AdminView() {
       .catch(() => {});
   }, []);
 
-  // A new search term always starts from the first page.
   useEffect(() => {
     setPage(1);
   }, [search]);

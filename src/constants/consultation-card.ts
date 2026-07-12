@@ -5,5 +5,4 @@ export const CONSULTATION_CARD = {
   LOCKED_SUFFIX: ' minutes before the start time.',
 } as const;
 
-// How close to the start time reschedule/cancel stay available.
 export const LEAD_TIME_MINUTES = 60;

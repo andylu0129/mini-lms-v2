@@ -29,7 +29,7 @@ export function AuthProvider({ user, children }: { user: UserDetails; children: 
   const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   useEffect(() => {
-    // Listen for future auth changes and redirect if session expires mid-browsing.
+    // Listens for future auth changes and redirect if session expires mid-browsing.
     // Does not sign out other tabs and browsers.
     const {
       data: { subscription },
@@ -40,7 +40,7 @@ export function AuthProvider({ user, children }: { user: UserDetails; children: 
       }
     });
 
-    // Listen for sign-out broadcasts from other tabs.
+    // Listens for sign-out broadcasts from other tabs.
     const channel = new BroadcastChannel(BROADCAST.CHANNEL_AUTH);
     channel.onmessage = (event) => {
       if (event.data === BROADCAST.MESSAGE_SIGN_OUT) {
