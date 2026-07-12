@@ -124,7 +124,7 @@ export default function SignInForm() {
             clearErrors('root');
             setIsAdmin((current) => !current);
           }}
-          className="font-medium underline-offset-4 hover:underline"
+          className="cursor-pointer font-medium underline-offset-4 hover:underline"
         >
           {text.SWITCH_LINK}
         </button>

@@ -16,9 +16,7 @@ export default function Page() {
         </Button>
         <div className="flex flex-col gap-1">
           <h1 className="font-heading text-2xl font-semibold text-balance">Book a consultation</h1>
-          <p className="text-muted-foreground text-sm text-pretty">
-            Schedule a new advising session with the campus advising office.
-          </p>
+          <p className="text-muted-foreground text-sm text-pretty">Schedule a new session.</p>
         </div>
       </div>
       <BookingForm />
