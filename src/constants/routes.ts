@@ -6,6 +6,7 @@ export const ROUTES = {
   ADMIN_SIGNIN: '/admin/sign-in',
   ADMIN_DASHBOARD: '/admin/dashboard',
   STUDENT_DASHBOARD: '/student/dashboard',
+  STUDENT_BOOK: '/student/book',
 } as const;
 
 export const API_ROUTES = {
@@ -14,4 +15,5 @@ export const API_ROUTES = {
   SIGN_UP: '/api/auth/sign-up',
   SIGN_OUT: '/api/auth/sign-out',
   CONSULTATIONS: '/api/consultations',
+  CONSULTATION_STATS: '/api/consultations/stats',
 } as const;

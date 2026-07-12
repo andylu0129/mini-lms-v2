@@ -1,35 +1,60 @@
+import { CONSULTATION_FILTER } from '@/constants/consultation-filter';
+import { CONSULTATION_STATUS } from '@/constants/consultation-status';
 import { HTTP_STATUS } from '@/constants/http-status';
+import { PAGINATION } from '@/constants/pagination';
+import { QUERY_PARAMS } from '@/constants/query-params';
 import { TABLES } from '@/constants/tables';
 import { VALIDATION } from '@/constants/validation';
 import { createClient } from '@/lib/supabase/server';
 import { consultationRequestSchema } from '@/lib/zod/schemas/form-schema';
+import { toConsultation } from '@/utils/consultations';
 import { NextResponse } from 'next/server';
 
-type ConsultationRow = {
-  id: string;
-  user_id: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  reason: string;
-  datetime: string;
-  status: ConsultationStatus;
-  created_at: string;
-};
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const filter = searchParams.get(QUERY_PARAMS.FILTER) ?? CONSULTATION_FILTER.UPCOMING;
+  const offset = Number(searchParams.get(QUERY_PARAMS.OFFSET) ?? 0);
+  if (
+    (filter !== CONSULTATION_FILTER.UPCOMING && filter !== CONSULTATION_FILTER.PAST) ||
+    !Number.isInteger(offset) ||
+    offset < 0
+  ) {
+    return NextResponse.json({ error: VALIDATION.INVALID_REQUEST }, { status: HTTP_STATUS.BAD_REQUEST });
+  }
 
-function toConsultation(row: ConsultationRow): Consultation {
-  return {
-    id: row.id,
-    studentId: row.user_id,
-    studentName: `${row.first_name} ${row.last_name}`,
-    studentEmail: row.email,
-    firstName: row.first_name,
-    lastName: row.last_name,
-    reason: row.reason,
-    datetime: row.datetime,
-    status: row.status,
-    createdAt: row.created_at,
-  };
+  const supabase = await createClient();
+  const { data: claimsData } = await supabase.auth.getClaims();
+  if (!claimsData?.claims) {
+    return NextResponse.json({ error: VALIDATION.UNAUTHORIZED }, { status: HTTP_STATUS.UNAUTHORIZED });
+  }
+
+  // Upcoming: still-upcoming rows whose time hasn't passed yet, soonest first.
+  // Past: everything else - complete/incomplete/cancelled, plus still-upcoming
+  // rows already past their time (shown there so they can be marked) - most
+  // recent first. RLS scopes rows to the signed-in student.
+  const now = new Date().toISOString();
+  const base = supabase.from(TABLES.CONSULTATIONS).select();
+  const query =
+    filter === CONSULTATION_FILTER.UPCOMING
+      ? base.eq('status', CONSULTATION_STATUS.UPCOMING).gt('datetime', now).order('datetime', { ascending: true })
+      : base
+          .or(`status.neq.${CONSULTATION_STATUS.UPCOMING},datetime.lte.${now}`)
+          .order('datetime', { ascending: false });
+
+  const pageSize = PAGINATION.CONSULTATIONS_PAGE_SIZE;
+  const { data, error } = await query.range(offset, offset + pageSize - 1);
+
+  if (error) {
+    // Never forward database errors to the client - they leak schema details.
+    console.error('Failed to list consultations:', error);
+    return NextResponse.json({ error: VALIDATION.SERVER_ERROR }, { status: HTTP_STATUS.INTERNAL_SERVER_ERROR });
+  }
+
+  const rows = (data ?? []) as ConsultationRow[];
+  return NextResponse.json(
+    { consultations: rows.map(toConsultation), hasMore: rows.length === pageSize },
+    { status: HTTP_STATUS.OK },
+  );
 }
 
 export async function POST(request: Request) {

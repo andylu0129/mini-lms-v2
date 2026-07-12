@@ -52,6 +52,11 @@ export const bookingFormSchema = z.object({
 
 export type BookingFormValues = z.infer<typeof bookingFormSchema>;
 
+// Reschedule collects the same date + time pair as booking.
+export const rescheduleFormSchema = bookingFormSchema.pick({ date: true, time: true });
+
+export type RescheduleFormValues = z.infer<typeof rescheduleFormSchema>;
+
 // What the consultations API receives.
 export const consultationRequestSchema = z.object({
   firstName: z.string().min(1, VALIDATION.FIRST_NAME_REQUIRED),

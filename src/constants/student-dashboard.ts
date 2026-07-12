@@ -1,0 +1,17 @@
+export const STUDENT_DASHBOARD = {
+  WELCOME: 'Welcome back',
+  DESCRIPTION: 'Review your advising history and manage upcoming consultations.',
+  BOOK: 'Book consultation',
+  STAT_UPCOMING: 'Upcoming',
+  STAT_COMPLETED: 'Completed',
+  STAT_TOTAL: 'Total booked',
+  TAB_UPCOMING: 'Upcoming',
+  TAB_PAST: 'Past',
+  EMPTY_UPCOMING_TITLE: 'No upcoming consultations',
+  EMPTY_UPCOMING_DESCRIPTION: 'Book a consultation to get advising support.',
+  EMPTY_PAST_TITLE: 'No past consultations',
+  EMPTY_PAST_DESCRIPTION: 'Your complete, incomplete and cancelled consultations will appear here.',
+  ERROR_TITLE: "Couldn't load your consultations",
+  ERROR_DESCRIPTION: 'There was a problem reaching the scheduling service. Please try again.',
+  RETRY: 'Retry',
+} as const;
