@@ -5,6 +5,14 @@ type ConsultationFilter = 'upcoming' | 'past';
 
 type ConsultationStats = Record<ConsultationStatus, number>;
 
+type AdminStats = {
+  total: number;
+  upcoming: number;
+  students: number;
+};
+
+type AdminStatusFilter = 'all' | ConsultationStatus;
+
 type Consultation = {
   id: string;
   studentId: string;

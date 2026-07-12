@@ -1,4 +1,4 @@
-import { BookingForm } from '@/components/booking-form';
+import { BookingForm } from '@/components/student/booking-form';
 import { ROUTES } from '@/constants/routes';
 import { Button } from '@/lib/shadcn/components/ui/button';
 import { ArrowLeftIcon } from 'lucide-react';

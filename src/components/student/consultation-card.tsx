@@ -1,9 +1,9 @@
 'use client';
 
-import { CancelDialog } from '@/components/cancel-dialog';
-import { MarkDialog } from '@/components/mark-dialog';
-import { RescheduleDialog } from '@/components/reschedule-dialog';
 import { StatusBadge } from '@/components/status-badge';
+import { CancelDialog } from '@/components/student/cancel-dialog';
+import { MarkDialog } from '@/components/student/mark-dialog';
+import { RescheduleDialog } from '@/components/student/reschedule-dialog';
 import { CONSULTATION_CARD, LEAD_TIME_MINUTES } from '@/constants/consultation-card';
 import { CONSULTATION_STATUS } from '@/constants/consultation-status';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/lib/shadcn/components/ui/card';

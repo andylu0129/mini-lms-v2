@@ -1,6 +1,6 @@
 'use client';
 
-import { ConsultationCard } from '@/components/consultation-card';
+import { ConsultationCard } from '@/components/student/consultation-card';
 import { CONSULTATION_FILTER, PAST_STATUSES } from '@/constants/consultation-filter';
 import { CONSULTATION_STATUS } from '@/constants/consultation-status';
 import { API_ROUTES, ROUTES } from '@/constants/routes';
@@ -13,14 +13,7 @@ import { Skeleton } from '@/lib/shadcn/components/ui/skeleton';
 import { Spinner } from '@/lib/shadcn/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/lib/shadcn/components/ui/tabs';
 import { useUserDetails } from '@/lib/supabase/auth-provider';
-import {
-  CalendarPlusIcon,
-  CircleCheckIcon,
-  ClockIcon,
-  InboxIcon,
-  RotateCwIcon,
-  TriangleAlertIcon,
-} from 'lucide-react';
+import { CalendarPlusIcon, CircleCheckIcon, ClockIcon, InboxIcon, RotateCwIcon, TriangleAlertIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 
