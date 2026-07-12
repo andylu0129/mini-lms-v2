@@ -45,14 +45,11 @@ export function AppHeader() {
   return (
     <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur-sm">
       <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between gap-4 px-4">
-        <Link
-          href={isAdmin ? '/admin' : '/dashboard'}
-          className="font-heading flex items-center gap-2 text-base font-semibold"
-        >
+        <Link href={'/'} className="font-heading flex items-center gap-2 text-base font-semibold">
           <span className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-lg">
             {isAdmin ? <ShieldCheckIcon className="size-4" /> : <GraduationCapIcon className="size-4" />}
           </span>
-          Campus Advising
+          Mini-LMS
         </Link>
 
         <div className="flex items-center gap-3">
@@ -63,7 +60,7 @@ export function AppHeader() {
           )}
           <DropdownMenu open={menuOpen || isSigningOut} onOpenChange={(next) => !isSigningOut && setMenuOpen(next)}>
             <DropdownMenuTrigger asChild>
-              <button className="focus-visible:ring-ring flex items-center gap-2 rounded-full outline-none focus-visible:ring-2">
+              <button className="focus-visible:ring-ring flex cursor-pointer items-center gap-2 rounded-full outline-none focus-visible:ring-2">
                 <Avatar className="size-9">
                   <AvatarFallback>{initials}</AvatarFallback>
                 </Avatar>
@@ -81,6 +78,7 @@ export function AppHeader() {
                 <DropdownMenuItem
                   variant="destructive"
                   disabled={isSigningOut}
+                  className="cursor-pointer"
                   onSelect={(event) => {
                     // Keep the menu open so the pending state stays visible.
                     event.preventDefault();

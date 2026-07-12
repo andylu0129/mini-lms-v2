@@ -4,7 +4,7 @@ export const SIGN_IN_FORM = {
   GENERIC_ERROR: 'Something went wrong. Please try again.',
   STUDENT: {
     TITLE: 'Student sign in',
-    SUBTITLE: 'Access your advising dashboard and manage consultations.',
+    SUBTITLE: 'Access your dashboard and manage consultations.',
     ERROR_TITLE: 'Unable to sign in',
     EMAIL_LABEL: 'Email',
     SUBMIT: 'Sign in',
