@@ -1,3 +1,5 @@
+import { LEAD_TIME_MINUTES } from '@/constants/consultation-card';
+
 export const VALIDATION = {
   FIRST_NAME_REQUIRED: 'First name is required.',
   LAST_NAME_REQUIRED: 'Last name is required.',
@@ -12,6 +14,7 @@ export const VALIDATION = {
   INVALID_REQUEST: 'Invalid request.',
   REASON_REQUIRED: 'Reason for consultation is required.',
   DATETIME_INVALID: 'Enter a valid date and time.',
+  DATETIME_TOO_SOON: `Consultation time must be at least ${LEAD_TIME_MINUTES} minutes from now.`,
   DATE_REQUIRED: 'Pick a date.',
   TIME_REQUIRED: 'Pick a time.',
   NOTHING_TO_UPDATE: 'Nothing to update.',
