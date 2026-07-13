@@ -1,3 +1,4 @@
+import { ROLES } from '@/constants/roles';
 import { API_ROUTES, ROUTES } from '@/constants/routes';
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
@@ -44,6 +45,17 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith(API_ROUTES.ROOT)
   ) {
     // no user, potentially respond by redirecting the user to the login page
+    const url = request.nextUrl.clone();
+    url.pathname = `${ROUTES.AUTH}${ROUTES.SIGN_IN}`;
+    return NextResponse.redirect(url);
+  }
+
+  // Signed-in users can only reach their own portal.
+  if (
+    user &&
+    ((request.nextUrl.pathname.startsWith(ROUTES.ADMIN) && user.user_role !== ROLES.ADMIN) ||
+      (request.nextUrl.pathname.startsWith(ROUTES.STUDENT) && user.user_role !== ROLES.STUDENT))
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = `${ROUTES.AUTH}${ROUTES.SIGN_IN}`;
     return NextResponse.redirect(url);
