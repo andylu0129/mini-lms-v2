@@ -92,7 +92,7 @@ export type ConsultationRequestValues = z.infer<typeof consultationRequestSchema
 export const consultationUpdateSchema = z
   .object({
     datetime: z.iso
-      .datetime({ offset: true, local: true, error: VALIDATION.DATETIME_INVALID })
+      .datetime({ offset: true, error: VALIDATION.DATETIME_INVALID })
       .refine(
         (value) => new Date(value).getTime() > Date.now() + LEAD_TIME_MINUTES * TIME.MS_PER_MINUTE,
         VALIDATION.DATETIME_TOO_SOON,

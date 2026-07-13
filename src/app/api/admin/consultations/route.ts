@@ -48,7 +48,7 @@ export async function GET(request: Request) {
 
   if (search) {
     // Commas and parentheses delimit PostgREST or() conditions.
-    // To prvent SQL injection attacks, we need to drop them
+    // To prevent SQL injection attacks, we need to drop them
     // from user input rather than trying to escape them.
     const term = search.replace(/[,()]/g, ' ').trim();
     if (term) {

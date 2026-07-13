@@ -56,7 +56,7 @@ export async function getUserDataFromToken() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getClaims();
 
-  if (error || !data?.claims?.email) {
+  if (error || !data?.claims?.email || !data?.claims?.user_role) {
     redirect(`${ROUTES.AUTH}${ROUTES.SIGN_IN}`);
   }
 
