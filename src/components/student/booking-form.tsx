@@ -3,6 +3,7 @@
 import { BOOKING_FORM } from '@/constants/booking-form';
 import { FIELDS } from '@/constants/fields';
 import { API_ROUTES, ROUTES } from '@/constants/routes';
+import { TIME } from '@/constants/time';
 import { Alert, AlertDescription, AlertTitle } from '@/lib/shadcn/components/ui/alert';
 import { Button } from '@/lib/shadcn/components/ui/button';
 import { Calendar } from '@/lib/shadcn/components/ui/calendar';
@@ -43,7 +44,7 @@ export function BookingForm() {
   const disabled = isSubmitting || success;
 
   const onSubmit = async (values: BookingFormValues) => {
-    const datetime = parse(values.time, 'HH:mm', values.date).toISOString();
+    const datetime = parse(values.time, TIME.TIME_INPUT_FORMAT, values.date).toISOString();
 
     try {
       const response = await fetch(API_ROUTES.CONSULTATIONS, {
@@ -145,7 +146,7 @@ export function BookingForm() {
                           disabled={disabled}
                         >
                           <CalendarIcon data-icon="inline-start" />
-                          {field.value ? format(field.value, 'PPP') : BOOKING_FORM.DATE_PLACEHOLDER}
+                          {field.value ? format(field.value, TIME.DATE_DISPLAY_FORMAT) : BOOKING_FORM.DATE_PLACEHOLDER}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">

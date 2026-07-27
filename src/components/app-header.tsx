@@ -1,6 +1,9 @@
 'use client';
 
+import { APP_HEADER } from '@/constants/app-header';
 import { BROADCAST } from '@/constants/common';
+import { METADATA } from '@/constants/metadata';
+import { ROLES } from '@/constants/roles';
 import { API_ROUTES, ROUTES } from '@/constants/routes';
 import { Avatar, AvatarFallback } from '@/lib/shadcn/components/ui/avatar';
 import {
@@ -27,7 +30,7 @@ export function AppHeader() {
 
   if (!user) return null;
 
-  const isAdmin = user.role === 'admin';
+  const isAdmin = user.role === ROLES.ADMIN;
   const initials = `${user.firstName[0] ?? ''}${user.lastName[0] ?? ''}`.toUpperCase();
 
   const handleSignOut = async () => {
@@ -45,17 +48,17 @@ export function AppHeader() {
   return (
     <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur-sm">
       <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between gap-4 px-4">
-        <Link href={'/'} className="font-heading flex items-center gap-2 text-base font-semibold">
+        <Link href={ROUTES.HOME} className="font-heading flex items-center gap-2 text-base font-semibold">
           <span className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-lg">
             {isAdmin ? <ShieldCheckIcon className="size-4" /> : <GraduationCapIcon className="size-4" />}
           </span>
-          Mini-LMS
+          {METADATA.TITLE}
         </Link>
 
         <div className="flex items-center gap-3">
           {isAdmin && (
             <span className="bg-accent text-accent-foreground hidden rounded-full px-3 py-1 text-xs font-medium sm:inline">
-              Admin portal
+              {APP_HEADER.ADMIN_BADGE}
             </span>
           )}
           <DropdownMenu open={menuOpen || isSigningOut} onOpenChange={(next) => !isSigningOut && setMenuOpen(next)}>
@@ -85,7 +88,7 @@ export function AppHeader() {
                   }}
                 >
                   {isSigningOut ? <Spinner data-icon="inline-start" /> : <LogOutIcon data-icon="inline-start" />}
-                  {isSigningOut ? 'Signing out...' : 'Sign out'}
+                  {isSigningOut ? APP_HEADER.SIGNING_OUT : APP_HEADER.SIGN_OUT}
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
