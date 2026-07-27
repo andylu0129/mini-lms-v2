@@ -65,8 +65,13 @@ export function AdminView() {
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<AdminStatusFilter>(STATUS_FILTER_ALL);
   const [page, setPage] = useState(1);
+  const [previousSearch, setPreviousSearch] = useState('');
 
   const search = useDebounce(query.trim(), TIME.SEARCH_DEBOUNCE_MS);
+  if (search !== previousSearch) {
+    setPreviousSearch(search);
+    setPage(1);
+  }
   const { consultations, total, isLoading, error, reload } = useAdminConsultations({
     page,
     status: statusFilter,
@@ -83,10 +88,6 @@ export function AdminView() {
       })
       .catch(() => {});
   }, []);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
 
   const pageSize = PAGINATION.ADMIN_TABLE_PAGE_SIZE;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));

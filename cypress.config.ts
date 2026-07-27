@@ -6,7 +6,7 @@ export default defineConfig({
   e2e: {
     baseUrl: 'http://localhost:3000',
     defaultCommandTimeout: 10000,
-    setupNodeEvents(on, config) {
+    setupNodeEvents(_on, _config) {
       // Implement node event listeners here.
     },
   },
