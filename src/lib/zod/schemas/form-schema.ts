@@ -98,7 +98,7 @@ export const consultationUpdateSchema = z
         VALIDATION.DATETIME_TOO_SOON,
       ),
     status: z.enum([
-      CONSULTATION_STATUS.UPCOMING,
+      // CONSULTATION_STATUS.UPCOMING, // Not needed since it's the default state, irreversible once changed to other states.
       CONSULTATION_STATUS.COMPLETE,
       CONSULTATION_STATUS.INCOMPLETE,
       CONSULTATION_STATUS.CANCELLED,
