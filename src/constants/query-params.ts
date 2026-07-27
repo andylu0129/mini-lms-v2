@@ -1,6 +1,7 @@
 export const QUERY_PARAMS = {
   FILTER: 'filter',
-  OFFSET: 'offset',
+  CURSOR_DATETIME: 'cursorDatetime',
+  CURSOR_ID: 'cursorId',
   AS_OF: 'asOf',
   PAGE: 'page',
   STATUS: 'status',

@@ -17,11 +17,14 @@ export function useInfiniteConsultations(filter: ConsultationFilter) {
 
   // Bumped on every filter change so responses from a previous filter are discarded.
   const generationRef = useRef(0);
-  const offsetRef = useRef(0);
+  // Keyset cursor: the (datetime, id) of the last row received. The next page
+  // asks for rows strictly after it, so rows inserted or removed above the
+  // scroll position cannot shift later pages.
+  const cursorRef = useRef<{ datetime: string; id: string } | null>(null);
   const inFlightRef = useRef(false);
   // Pins the upcoming/past time boundary for a whole scroll session, so a
-  // consultation crossing its start time between pages can't shift the
-  // offsets (which would skip or duplicate a row).
+  // consultation crossing its start time between pages can't vanish from the
+  // remaining pages before ever being shown.
   const asOfRef = useRef(new Date().toISOString());
 
   const fetchPage = useCallback(
@@ -32,9 +35,12 @@ export function useInfiniteConsultations(filter: ConsultationFilter) {
       try {
         const params = new URLSearchParams({
           [QUERY_PARAMS.FILTER]: filter,
-          [QUERY_PARAMS.OFFSET]: String(offsetRef.current),
           [QUERY_PARAMS.AS_OF]: asOfRef.current,
         });
+        if (cursorRef.current) {
+          params.set(QUERY_PARAMS.CURSOR_DATETIME, cursorRef.current.datetime);
+          params.set(QUERY_PARAMS.CURSOR_ID, cursorRef.current.id);
+        }
         const response = await fetch(`${API_ROUTES.CONSULTATIONS}?${params}`);
         const body = await response.json().catch(() => null);
         if (generation !== generationRef.current) {
@@ -45,8 +51,16 @@ export function useInfiniteConsultations(filter: ConsultationFilter) {
           return;
         }
         const page: Consultation[] = body?.consultations ?? [];
-        offsetRef.current += page.length;
-        setConsultations((previous) => [...previous, ...page]);
+        const last = page[page.length - 1];
+        if (last) {
+          cursorRef.current = { datetime: last.datetime, id: last.id };
+        }
+        // A reschedule from another session can move an already-shown row past
+        // the cursor and re-serve it, so drop rows whose id is already in the list.
+        setConsultations((previous) => {
+          const seen = new Set(previous.map((consultation) => consultation.id));
+          return [...previous, ...page.filter((consultation) => !seen.has(consultation.id))];
+        });
         setHasMore(Boolean(body?.hasMore));
       } catch {
         if (generation === generationRef.current) {
@@ -64,10 +78,10 @@ export function useInfiniteConsultations(filter: ConsultationFilter) {
   );
 
   // Drop everything and refetch from the first page. Runs on mount, on filter
-  // change, and after a mutation (offsets shift once a row changes status).
+  // change, and after a mutation (rows move between lists once a row changes status).
   const reload = useCallback(() => {
     generationRef.current += 1;
-    offsetRef.current = 0;
+    cursorRef.current = null;
     asOfRef.current = new Date().toISOString();
     setConsultations([]);
     setHasMore(false);
