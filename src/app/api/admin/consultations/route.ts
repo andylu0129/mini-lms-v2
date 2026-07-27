@@ -51,8 +51,12 @@ export async function GET(request: Request) {
     // To prevent SQL injection attacks, we need to drop them
     // from user input rather than trying to escape them.
     const term = search.replace(/[,()]/g, ' ').trim();
-    if (term) {
-      const pattern = `*${term}*`;
+    // Each whitespace-separated token must match some column (chained .or()
+    // calls AND together), so e.g. "john smith" matches first_name=John,
+    // last_name=Smith even though neither column contains the full phrase.
+    const tokens = term.split(/\s+/).filter(Boolean);
+    for (const token of tokens) {
+      const pattern = `*${token}*`;
       query = query.or(
         `first_name.ilike.${pattern},last_name.ilike.${pattern},email.ilike.${pattern},reason.ilike.${pattern}`,
       );
