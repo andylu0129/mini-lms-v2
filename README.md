@@ -418,7 +418,7 @@ flowchart LR
   BF -->|create| C1
   SD -->|stat cards + tab counts| C2
   SD --> HI
-  HI -->|"filter + offset pages (asOf-pinned)"| C1
+  HI -->|"filter + keyset pages (asOf-pinned)"| C1
   CC -->|reschedule / cancel / mark| C3
   AV --> HA
   HA -->|page + status + search| D1
@@ -453,7 +453,7 @@ Every browser → API arrow passes through the middleware first; every PostgREST
 
 - **Stats** are computed by a single grouped aggregate in the database (`consultation_stats()` RPC) rather than fetching rows to count client-side.
 - **Two tabs**: _Upcoming_ (status `upcoming` and time still in the future) and _Past_ (everything else). Tab counts come from the same time-aware stats, so counts always match list contents.
-- **Infinite scrolling** via a custom hook: an `IntersectionObserver` sentinel loads the next page (server-side `range` pagination), with a generation counter discarding out-of-order responses on tab switches. The two list UIs paginate differently on purpose, a personal feed scrolls naturally (and needs no page controls on mobile), whereas the admin's bulk records suit explicit pages.
+- **Infinite scrolling** via a custom hook: an `IntersectionObserver` sentinel loads the next page (server-side keyset pagination), with a generation counter discarding out-of-order responses on tab switches. The two list UIs paginate differently on purpose, a personal feed scrolls naturally (and needs no page controls on mobile), whereas the admin's bulk records suit explicit pages.
 - **Mutations** (reschedule, cancel, mark) refetch the list and the stat cards together. Counts are still a point-in-time snapshot: because `past` is derived from the clock, a consultation crossing its start time while the page sits open is only updated on the next fetch (live updates are listed under [Future Improvements](#future-improvements)).
 
 ### Consultation Booking
@@ -515,7 +515,7 @@ Every browser → API arrow passes through the middleware first; every PostgREST
 - **Admins are provisioned, not registered** — there is no admin sign-up; promotion is manual/seed-based (see [Creating an Admin User](#creating-an-admin-user)).
 - **Marks are permanent** - complete/incomplete records how a consultation went; allowing edits would undermine the record. Only unmarked past consultations can be marked.
 - **The 60-minute lead time** applies to both directions: you cannot book/reschedule into the locked window, and you cannot modify a consultation already inside it. One constant (`LEAD_TIME_MINUTES`) drives the UI copy, API checks, and (kept in sync manually) the database trigger.
-- **Offset pagination with a frozen clock per scroll.** Page 2 is fetched as "skip 10 rows", which only works if the rows don't move between fetches. But the upcoming/past split depends on the current time, so if a consultation's start time passes while the user is scrolling, it silently switches sides, every row below it shifts, and one row gets skipped or shown twice. The fix: when a list loads, the client records the time once (`asOf`) and sends it with every page request, so all pages of that scroll use the same clock and rows stay put. The list picks up time changes on the next reload (tab switch, mutation, refresh). Keyset pagination is the upgrade path if data volume ever grows.
+- **Keyset pagination with a frozen clock per scroll.** Each page asks for rows strictly after the previous page's last `(datetime, id)` cursor rather than "skip N rows", so bookings inserted or cancelled above the scroll position cannot shift later pages (no skipped or duplicated rows), and the query stays index-friendly as data grows. `id` is the tiebreaker for equal datetimes. The upcoming/past split still depends on the current time, so the client records the time once per scroll (`asOf`) and sends it with every page request; without it, a consultation crossing its start time mid-scroll would vanish from the remaining pages before ever being shown. The list picks up time changes on the next reload (tab switch, mutation, refresh). One residual edge remains: a reschedule from a second session can move an already-shown row past the cursor and re-serve it, so pages are deduped by id client-side.
 - **Stats via RPC** rather than PostgREST aggregate functions, which Supabase disables by default, a database function keeps the aggregate intentional and RLS-scoped.
 - **Everything is in the `public` schema.** In Supabase, `public` does not mean the data is public, it only means the object is reachable through the API, and RLS still decides who sees which rows. The app's own table and functions have to be reachable, so they belong there; the internal RBAC pieces sit alongside them purely for simplicity, protected by RLS and grants. Moving them to a private schema is considered under [Future Improvements](#future-improvements).
 - **No rate limiting on admin endpoints** — callers are authenticated admins hitting cheap indexed queries, and the refresh button already serialises requests (enforcing one request at a time). Supabase's built-in limits cover the auth endpoints.
@@ -531,7 +531,6 @@ Every browser → API arrow passes through the middleware first; every PostgREST
 ## Future Improvements
 
 - Realtime updates (Supabase Realtime) for the student dashboard, where the client owns its small working set. For the admin table, lighter freshness cues (refetch on focus, a "new records" banner) fit better, see the rationale in [Admin Portal](#admin-portal).
-- Keyset (cursor) pagination for consultation lists if data volume grows.
 - Refresh admin stat cards together with the table refresh button.
 - Additional roles (e.g. tutor) using the existing role/permission mechanism.
 - Multi-factor authentication. Supabase ships TOTP support, so a second factor is mostly integration work.

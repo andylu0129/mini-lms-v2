@@ -3,6 +3,7 @@
 import { FIELDS } from '@/constants/fields';
 import { RESCHEDULE_DIALOG } from '@/constants/reschedule-dialog';
 import { API_ROUTES } from '@/constants/routes';
+import { TIME } from '@/constants/time';
 import { VALIDATION } from '@/constants/validation';
 import { Alert, AlertTitle } from '@/lib/shadcn/components/ui/alert';
 import { Button } from '@/lib/shadcn/components/ui/button';
@@ -49,12 +50,12 @@ export function RescheduleDialog({ consultation, onChanged }: { consultation: Co
     }
     setOpen(next);
     if (next) {
-      reset({ date: when, time: format(when, 'HH:mm') });
+      reset({ date: when, time: format(when, TIME.TIME_INPUT_FORMAT) });
     }
   };
 
   const onSubmit = async (values: RescheduleFormValues) => {
-    const datetime = parse(values.time, 'HH:mm', values.date).toISOString();
+    const datetime = parse(values.time, TIME.TIME_INPUT_FORMAT, values.date).toISOString();
     try {
       const response = await fetch(`${API_ROUTES.CONSULTATIONS}/${consultation.id}`, {
         method: 'PATCH',
@@ -111,7 +112,7 @@ export function RescheduleDialog({ consultation, onChanged }: { consultation: Co
                         disabled={isSubmitting}
                       >
                         <CalendarIcon data-icon="inline-start" />
-                        {field.value ? format(field.value, 'PPP') : RESCHEDULE_DIALOG.DATE_PLACEHOLDER}
+                        {field.value ? format(field.value, TIME.DATE_DISPLAY_FORMAT) : RESCHEDULE_DIALOG.DATE_PLACEHOLDER}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">

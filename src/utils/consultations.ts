@@ -23,11 +23,11 @@ export function toConsultation(row: ConsultationRow): Consultation {
 }
 
 export function formatDate(datetime: string) {
-  return format(new Date(datetime), 'PPP');
+  return format(new Date(datetime), TIME.DATE_DISPLAY_FORMAT);
 }
 
 export function formatTime(datetime: string) {
-  return format(new Date(datetime), 'p');
+  return format(new Date(datetime), TIME.TIME_DISPLAY_FORMAT);
 }
 
 // e.g. "in 3 days", "2 hours ago".
