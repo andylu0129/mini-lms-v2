@@ -10,18 +10,22 @@ import { consultationRequestSchema } from '@/lib/zod/schemas/form-schema';
 import type { ConsultationRow } from '@/types/global';
 import { toConsultation } from '@/utils/consultations';
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const filter = searchParams.get(QUERY_PARAMS.FILTER) ?? CONSULTATION_FILTER.UPCOMING;
-  const offset = Number(searchParams.get(QUERY_PARAMS.OFFSET) ?? 0);
   const asOfParam = searchParams.get(QUERY_PARAMS.AS_OF);
   const asOfTime = asOfParam === null ? null : new Date(asOfParam).getTime();
+  const cursorDatetimeParam = searchParams.get(QUERY_PARAMS.CURSOR_DATETIME);
+  const cursorId = searchParams.get(QUERY_PARAMS.CURSOR_ID);
+  const cursorTime = cursorDatetimeParam === null ? null : new Date(cursorDatetimeParam).getTime();
   if (
     (filter !== CONSULTATION_FILTER.UPCOMING && filter !== CONSULTATION_FILTER.PAST) ||
-    !Number.isInteger(offset) ||
-    offset < 0 ||
-    (asOfTime !== null && Number.isNaN(asOfTime))
+    (asOfTime !== null && Number.isNaN(asOfTime)) ||
+    (cursorDatetimeParam === null) !== (cursorId === null) ||
+    (cursorTime !== null && Number.isNaN(cursorTime)) ||
+    (cursorId !== null && !z.uuid().safeParse(cursorId).success)
   ) {
     return NextResponse.json({ error: VALIDATION.INVALID_REQUEST }, { status: HTTP_STATUS.BAD_REQUEST });
   }
@@ -32,20 +36,37 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: VALIDATION.UNAUTHORIZED }, { status: HTTP_STATUS.UNAUTHORIZED });
   }
 
-  // The time boundary is pinned to the client's asOf for a whole scroll session.
-  // Re-evaluating now() per page lets rows cross the boundary between
-  // pages, shifting the offsets so a row gets skipped or duplicated.
+  // The upcoming/past time boundary is pinned to the client's asOf for a whole
+  // scroll session so every page classifies rows with the same clock; a row
+  // crossing its start time mid-scroll would otherwise vanish from the
+  // remaining upcoming pages before ever being shown.
   const asOf = new Date(asOfTime === null ? Date.now() : Math.min(asOfTime, Date.now())).toISOString();
   const base = supabase.from(TABLES.CONSULTATIONS).select();
-  const query =
+  let query =
     filter === CONSULTATION_FILTER.UPCOMING
-      ? base.eq('status', CONSULTATION_STATUS.UPCOMING).gt('datetime', asOf).order('datetime', { ascending: true })
+      ? base
+          .eq('status', CONSULTATION_STATUS.UPCOMING)
+          .gt('datetime', asOf)
+          .order('datetime', { ascending: true })
+          .order('id', { ascending: true })
       : base
           .or(`status.neq.${CONSULTATION_STATUS.UPCOMING},datetime.lte.${asOf}`)
-          .order('datetime', { ascending: false });
+          .order('datetime', { ascending: false })
+          .order('id', { ascending: false });
+
+  // Keyset pagination: fetch rows strictly after the previous page's last
+  // (datetime, id), so rows inserted or removed above the scroll position
+  // cannot shift later pages. id breaks ties between equal datetimes.
+  if (cursorTime !== null && cursorId !== null) {
+    const cursorDatetime = new Date(cursorTime).toISOString();
+    query =
+      filter === CONSULTATION_FILTER.UPCOMING
+        ? query.or(`datetime.gt.${cursorDatetime},and(datetime.eq.${cursorDatetime},id.gt.${cursorId})`)
+        : query.or(`datetime.lt.${cursorDatetime},and(datetime.eq.${cursorDatetime},id.lt.${cursorId})`);
+  }
 
   const pageSize = PAGINATION.CONSULTATIONS_PAGE_SIZE;
-  const { data, error } = await query.range(offset, offset + pageSize - 1);
+  const { data, error } = await query.limit(pageSize);
 
   if (error) {
     console.error('Failed to list consultations:', error);
